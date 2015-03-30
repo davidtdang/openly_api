@@ -26,6 +26,17 @@ class LocationsController < ApplicationController
     # hours = venue.hours
     #X render :json => hours_client
 
+    @venues = venues.map do |venue|
+      if venue.hours
+        {
+        name: venue.name,
+        monfrihours: venue.hours.timeframes[0]["open"],
+        address: venue.location.formattedAddress.join(" "),
+        }
+      else
+        {}
+      end
+    end
     # @venues = venues.map do |venue|
     #   {
     #     name: venue.name,
@@ -46,7 +57,7 @@ class LocationsController < ApplicationController
     #     }
     # end
 
-    render json: venues
+    # render json: venues
 end
 
 
