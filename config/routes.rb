@@ -3,11 +3,17 @@ Rails.application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
+  # root 'venues#index'
+  #
+  # post '/search' => "venues#search", as: :search
+  #
+  # resources :venues
+
+
   root 'venues#index'
+  post '/search_yelp' => 'venues#search_yelp', as: :search_yelp
+  get 'venues/show' => 'venues#show', as: :venues
 
-  post '/search' => "venues#search", as: :search
-
-  resources :venues
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

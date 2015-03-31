@@ -1,45 +1,64 @@
 class VenuesController < ApplicationController
+  respond_to :json
 
-  def index
-    # FOURSQUARE API///////////////
-    params[:ll]  #=> ?ll="'36.142064,-86.816086'"
+  def splash
 
-    client = Foursquare2::Client.new(:client_id => ENV["FOURSQUARE_CLIENT_ID"], :client_secret => ENV["FOURSQUARE_CLIENT_SECRET"], :api_version => '20150329')
-    # results = client.search_venues(ll: params[:ll], query: params[:s] )
-    results = client.search_venues(:ll => '40.721294,-73.983994')
+  end
 
-    venues = []
-    venue_call_errors = 0
-    results.venues.each do |venue|
-      begin
-        venues << client.venue(venue["id"])
-      rescue
-        venue_call_errors +=1
-        puts "ERROR: Venue #{venue.name} with storeId #{venue["storeId"]} was not found. 4Square API"
-      end
-    end
-    puts "Error report: venue_call_errors, #{venue_call_errors}"
+  def show
 
-    # venue = client.venue(75791)
-    # #X puts hours_client
-    # hours = venue.hours
-    #X render :json => hours_client
+    # response = Yelp.client.search('San Francisco', { term: params[:search], coordinates: "#{params[:lat]},#{params[:lng]}" })
+    # businesses = response.businesses
+    #
+    # # @geojson = Array.new
+    # # @businesses.each do |business|
+    # #   @geojson << {
+    # #       type: 'Feature',
+    # #       geometry: {
+    # #           type: 'Point',
+    # #           coordinates: [business.location.coordinate.longitude, business.location.coordinate.latitude]
+    # #       },
+    # #       properties: {
+    # #           name: business.name,
+    # #           address: "#{business.location.display_address.first }, #{business.location.display_address.last}",
+    # #           :'marker-color' => '#00607d',
+    # #           :'marker-symbol' => 'circle',
+    # #           :'marker-size' => 'medium'
+    # #       }
+    # #   }
+    # #
+    # #   respond_to do |format|
+    # #     format.html
+    # #     format.json { render json: @geojson }
+    # #   end
+    # #
+    # # end
+    #
+    #
+    #
+    # @businesses = businesses.map do |business|
+    #   {
+    #     name: business.name,
+    #     url: business.url,
+    #     image_url: business.image_url,
+    #     review_count: business.review_count,
+    #     categories: business.categories,
+    #     star_rating: business.rating_img_url,
+    #     rating: business.rating,
+    #     address: "#{business.location.display_address.first }, #{business.location.display_address.last}",
+    #     phone: display_phone(business.display_phone)
+    #     geocoords: [business.location.coordinate.longitude, business.location.coordinate.latitude],
+    #   }
+    # end
+    # render restaurant_path
+  end
 
-    @venues = venues.map do |venue|
-      if venue.hours
-        {
-        # name: venue.name,
-        monfrihours: venue.hours.timeframes[0]["open"],
-        # address: venue.location.formattedAddress.join(" "),
-        }
-      else
-        {}
-      end
+  def search_yelp
+    # response = Yelp.client.search('San Francisco', { term: params[:s], coordinates: "#{params[:lat]},#{params[:lng]}" })
+    response = Yelp.client.search('San Francisco', {term: params[:s]})
 
-    # YELP API///////////////////////
-    response = Yelp.client.search('San Francisco', {terms: params[:s]})
 
-    businesses = responses.businesses.map do |businesss|
+    businesses = response.businesses.map do |business|
 
       categories = business.categories.map do |category_arr|
         category_arr.first
@@ -47,25 +66,26 @@ class VenuesController < ApplicationController
 
       {
         name: business.name,
-        phone:display_phone(business.display_phone),
         url: business.url,
-        categories: categories,
+        # image_url: business.image_url,
         review_count: business.review_count,
-        star_rating: business.rating,
-        address: "#{business.location.display_address}, {business.location.display_address.last}",
+        categories: categories,
+        star_rating: business.rating_img_url,
+        rating: business.rating,
+        address: "#{business.location.display_address.first }, #{business.location.display_address.last}",
+        phone: display_phone(business.display_phone),
         geocoords: [business.location.coordinate.longitude, business.location.coordinate.latitude],
       }
-      render json: businesses
     end
 
+    render json: businesses
   end
 
   private
+
   def display_phone(phone_number)
-    piece = phone_number.split('-')
-    "(#{piece[1]}) #{piece[2]}-#{piece[3]}"
+    parts = phone_number.split('-')
+
+    "(#{parts[1]}) #{parts[2]}-#{parts[3]}"
   end
-  
-
-
 end
