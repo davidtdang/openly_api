@@ -15,6 +15,8 @@ Rails.application.routes.draw do
   get 'venues/show' => 'venues#show', as: :venues
 
 
+
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
