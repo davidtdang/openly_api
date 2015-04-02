@@ -33,10 +33,6 @@ class VenuesController < ApplicationController
       venue_hours = client.venue_hours(business["id"])
 
 
-      # categories=[]
-      # venue_details.categories.map do |category|
-      #      categories << category.categories[3]
-      #   end
 
       formatted_businesses.push({
         name: venue_details.name,
@@ -46,9 +42,11 @@ class VenuesController < ApplicationController
         lat: venue_details.location.lat,
         geocoords: [venue_details.location.lng, venue_details.location.lat],
         # categories: categories,
-        # rating: venue_details.rating if venue_details.rating
+        rating: venue_details.rating
 
         })
+
+
     end
 
 
@@ -96,7 +94,7 @@ class VenuesController < ApplicationController
 
 
 
-    render json: venues
+    render json: formatted_businesses
   end
 
 
