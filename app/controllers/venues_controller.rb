@@ -14,27 +14,47 @@ class VenuesController < ApplicationController
     venues = []
     venue_call_errors = 0
     results.venues.each do |venue|
-      begin
+      # begin
         venues << client.venue(venue["id"])
-      rescue
-        venue_call_errors +=1
-        puts "ERROR: Venue #{venue.name} with storeId #{venue["storeId"]} was not found. 4Square API"
-      end
+      # rescue
+      #   venue_call_errors +=1
+      #   puts "ERROR: Venue #{venue.name} with storeId #{venue["storeId"]} was not found. 4Square API"
+      # end
     end
     puts "Error report: venue_call_errors, #{venue_call_errors}"
 
 
 
 
-    formatted_businesses = []
-    results.venues.each do |business|
+    formatted_venues = []
+    days_lib = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    results.venues.each do |venue|
 
-      venue_details = client.venue(business["id"])
-      venue_hours = client.venue_hours(business["id"])
+      venue_details = client.venue(venue["id"])   ##### returns eveyrthing else JSON
+      venue_hours = client.venue_hours(venue["id"])    ##### returns HOURS JSON
+      hours = {}
+
+      begin
+        venue_hours["hours"]["timeframes"].each do |day_groups|
+          day_groups["days"].each do |i|
+            day_friendly = days_lib[i-1]
+            hours[day_friendly] = day_groups["open"] ||= []
+          end
+        end
+      rescue
+        hours = {
+          "Mon"=>[],
+          "Tue"=>[],
+          "Wed"=>[],
+          "Thu"=>[],
+          "Fri"=>[],
+          "Sat"=>[],
+          "Sun"=>[]
+        }
+      end
 
 
-
-      formatted_businesses.push({
+      formatted_venues.push({
         name: venue_details.name,
         address: venue_details.location.formattedAddress[0..-2],
         phone: venue_details.contact.formattedPhone,
@@ -42,7 +62,8 @@ class VenuesController < ApplicationController
         lat: venue_details.location.lat,
         geocoords: [venue_details.location.lng, venue_details.location.lat],
         # categories: categories,
-        rating: venue_details.rating
+        rating: venue_details.rating,
+        hours: hours
 
         })
 
@@ -50,12 +71,12 @@ class VenuesController < ApplicationController
     end
 
 
-
-    require 'pp'
-    puts '@'*100
-
-    pp formatted_businesses
-    puts '@'*100
+    render json: formatted_venues
+    # require 'pp'
+    # puts '@'*100
+    #
+    # pp formatted_venues
+    # puts '@'*100
 
     # venue = client.venue(75791)
     # #X puts hours_client
@@ -94,7 +115,7 @@ class VenuesController < ApplicationController
 
 
 
-    render json: formatted_businesses
+
   end
 
 

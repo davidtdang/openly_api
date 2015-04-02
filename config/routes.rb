@@ -12,6 +12,8 @@ Rails.application.routes.draw do
 
   root 'venues#index'
   post '/search' => 'venues#search', as: :search
+  # get '/search_json' => 'venues#search', as: :search_json
+
   # post '/search_foursquare' => 'venues#search_foursquare', as: :search_foursquare
   # get 'venues/show' => 'venues#show', as: :venues
 
