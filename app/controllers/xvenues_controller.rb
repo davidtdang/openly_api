@@ -2,67 +2,67 @@
 class VenuesController < ApplicationController
   respond_to :json
 
-  def search_foursquare
-    # FOURSQUARE API/////////////////////////////////////////////////////
-    # params[:ll]  #=> ?ll="'36.142064,-86.816086'"
-
-    client = Foursquare2::Client.new(:client_id => ENV["FOURSQUARE_CLIENT_ID"], :client_secret => ENV["FOURSQUARE_CLIENT_SECRET"], :api_version => '20150329')
-    # results = client.search_venues(ll: params[:ll], query: params[:s] )
-    # results = client.search_venues(:ll => '40.721294,-73.983994')
-    results = client.search_venues(:ll => '37.767, -122.436', query: params[:s])
-
-    venues = []
-    venue_call_errors = 0
-    results.venues.each do |venue|
-      begin
-        venues << client.venue(venue["id"])
-      rescue
-        venue_call_errors +=1
-        puts "ERROR: Venue #{venue.name} with storeId #{venue["storeId"]} was not found. 4Square API"
-      end
-    end
-    puts "Error report: venue_call_errors, #{venue_call_errors}"
-
-
-
-    # venue = client.venue(75791)
-    # #X puts hours_client
-    # hours = venue.hours
-    #X render :json => hours_client
-
-    # @venues = venues.map do |venue|
-    #   if venue.hours
-    #     {
-    #       # name: venue.name,
-    #       monfrihours: venue.hours.timeframes[0]["open"],
-    #       # address: venue.location.formattedAddress.join(" "),
-    #     }
-    #   else
-    #     {}
-    #   end
-    # end
-    require 'pp'
-    puts '@'*100
-    # hours_hash = client.venue_hours(results.venues[0]["id"])
-
-    # info = client.venue(results.venues[0]["id"])
-    # pp foursquare_lat = info.location.lat
-    # pp foursquare_lng = info.location.lng
-    info = client.venue_hours(results.venues[0]["id"])
-
-    foursquare_address = info.location.formattedAddress
-    foursquare_lat = info.location.lat
-    foursquare_lng = info.location.lng
-
-    f_sq = [foursquare_lat, foursquare_lng, foursquare_address]
-
-    puts '@'*100
-
-
-
-
-    # render json: @venues
-  end
+  # def search_foursquare
+  #   # FOURSQUARE API/////////////////////////////////////////////////////
+  #   # params[:ll]  #=> ?ll="'36.142064,-86.816086'"
+  #
+  #   client = Foursquare2::Client.new(:client_id => ENV["FOURSQUARE_CLIENT_ID"], :client_secret => ENV["FOURSQUARE_CLIENT_SECRET"], :api_version => '20150329')
+  #   # results = client.search_venues(ll: params[:ll], query: params[:s] )
+  #   # results = client.search_venues(:ll => '40.721294,-73.983994')
+  #   results = client.search_venues(:ll => '37.767, -122.436', query: params[:s])
+  #
+  #   venues = []
+  #   venue_call_errors = 0
+  #   results.venues.each do |venue|
+  #     begin
+  #       venues << client.venue(venue["id"])
+  #     rescue
+  #       venue_call_errors +=1
+  #       puts "ERROR: Venue #{venue.name} with storeId #{venue["storeId"]} was not found. 4Square API"
+  #     end
+  #   end
+  #   puts "Error report: venue_call_errors, #{venue_call_errors}"
+  #
+  #
+  #
+  #   # venue = client.venue(75791)
+  #   # #X puts hours_client
+  #   # hours = venue.hours
+  #   #X render :json => hours_client
+  #
+  #   # @venues = venues.map do |venue|
+  #   #   if venue.hours
+  #   #     {
+  #   #       # name: venue.name,
+  #   #       monfrihours: venue.hours.timeframes[0]["open"],
+  #   #       # address: venue.location.formattedAddress.join(" "),
+  #   #     }
+  #   #   else
+  #   #     {}
+  #   #   end
+  #   # end
+  #   require 'pp'
+  #   puts '@'*100
+  #   # hours_hash = client.venue_hours(results.venues[0]["id"])
+  #
+  #   # info = client.venue(results.venues[0]["id"])
+  #   # pp foursquare_lat = info.location.lat
+  #   # pp foursquare_lng = info.location.lng
+  #   info = client.venue_hours(results.venues[0]["id"])
+  #
+  #   foursquare_address = info.location.formattedAddress
+  #   foursquare_lat = info.location.lat
+  #   foursquare_lng = info.location.lng
+  #
+  #   f_sq = [foursquare_lat, foursquare_lng, foursquare_address]
+  #
+  #   puts '@'*100
+  #
+  #
+  #
+  #
+  #   # render json: @venues
+  # end
 
   # YELP API/////////////////////////////////////////////////////
 
@@ -90,22 +90,22 @@ class VenuesController < ApplicationController
       }
     end
 
-  businesses.each do |y_biz|
-    f_sq.each do |f_biz|
-      is_same_biz = true
-      difference_lats = y_biz.lat - f_biz.foursquare_lat
-      difference_lngs = y_biz.lng - f_biz.foursquare_lng
-      if difference_lats > 0.0000001 || difference_lngs > 0.0000001
-        is_same_biz = false
-      elsif f_biz.foursquare_address.gsub(/\D/,"") != y_biz.address
-        is_same_biz = false
-      else
-        is_same_biz = true
-      end
-    end
-  end
-
-  pp is_same_biz
+  # businesses.each do |y_biz|
+  #   f_sq.each do |f_biz|
+  #     is_same_biz = true
+  #     difference_lats = y_biz.lat - f_biz.foursquare_lat
+  #     difference_lngs = y_biz.lng - f_biz.foursquare_lng
+  #     if difference_lats > 0.0000001 || difference_lngs > 0.0000001
+  #       is_same_biz = false
+  #     elsif f_biz.foursquare_address.gsub(/\D/,"") != y_biz.address
+  #       is_same_biz = false
+  #     else
+  #       is_same_biz = true
+  #     end
+  #   end
+  # end
+  #
+  # pp is_same_biz
   render json: businesses
 
   end

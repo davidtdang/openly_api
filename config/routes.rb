@@ -9,9 +9,11 @@ Rails.application.routes.draw do
   #
   # resources :venues
 
-
   root 'venues#index'
-  post '/search' => 'venues#search', as: :search
+post '/search_yelp' => 'venues#search_yelp', as: :search_yelp
+get 'venues/show' => 'venues#show', as: :venues
+  # root 'venues#index'
+  # post '/search_yelp' => 'venues#search_yelp', as: :search_yelp
   # get '/search_json' => 'venues#search', as: :search_json
 
   # post '/search_foursquare' => 'venues#search_foursquare', as: :search_foursquare
