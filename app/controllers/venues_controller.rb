@@ -13,6 +13,47 @@ class VenuesController < ApplicationController
         category_arr.first
       end
 
+      hours_arr = ["8:30","8:45","9:00","9:15","9:30","10:00","10:15"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       {
         name: business.name,
         url: business.url,
@@ -23,6 +64,7 @@ class VenuesController < ApplicationController
         address: "#{business.location.display_address.first }, #{business.location.display_address.last}",
         phone: display_phone(business.display_phone),
         geocoords: [business.location.coordinate.longitude, business.location.coordinate.latitude],
+        hours: hours_arr.sample
       }
     end
 
