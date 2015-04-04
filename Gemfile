@@ -38,6 +38,7 @@ gem 'foursquare2', '~> 2.0.1'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
+gem 'rest-client', '~> 1.8.0'
 
 gem 'rack-cors', '~> 0.3.1'
 gem 'dotenv-rails'
