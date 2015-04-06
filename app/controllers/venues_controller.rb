@@ -1,53 +1,40 @@
+
 class VenuesController < ApplicationController
   respond_to :json
 
+
   def search_yelp(term)  #### gets YELP VENUES
-    response = []
-    response.concat(Yelp.client.search('San Francisco', {term: params[:s]}).businesses)
+
+    response ||= Rails.cache.fetch("find yelp venue " + term) do
+      Yelp.client.search('San Francisco', {term: params[:s]}).businesses
+
+    end
 
     return response
   end
 
   def search_google_places(term)   ##### gets GOOGLE VENUES which provides *place_id*
-    searchURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=#{ENV["GOOGLE_PLACES_KEY"]}&location=37.767,-122.436&radius=5632&keyword=#{term}"
-    puts searchURL
-    reply_one = RestClient.get(searchURL)
-    page_one = JSON.parse(reply_one)
 
-    # reply_two = RestClient.get(searchURL+"&pagetoken=#{page_one["next_page_token"]}")
-    # page_two = JSON.parse(reply_two)
-    #
-    # reply_three = RestClient.get(searchURL+"&pagetoken=#{page_two["next_page_token"]}")
-    # page_three = JSON.parse(reply_three)
-
-    # reply_four = RestClient.get(searchURL+"&pagetoken=#{page_three["next_page_token"]}")
-    # page_four = JSON.parse(reply_four)
-    #
-    # reply_five = RestClient.get(searchURL+"&pagetoken=#{page_four["next_page_token"]}")
-    # page_five = JSON.parse(reply_five)
-
-    results =[]
-    results.concat(page_one["results"])
-    # results.concat(page_two["results"])
-    # results.concat(page_three["results"])
-    # results.concat(page_four["results"])
-    # results.concat(page_five["results"])
+    results ||= Rails.cache.fetch("search_google_places" + term) do
+      puts "saerching term " + term
+      searchURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=#{ENV["GOOGLE_PLACES_KEY"]}&location=37.767,-122.436&radius=5632&keyword=#{term}"
+      reply_one = RestClient.get(searchURL)
+      JSON.parse(reply_one)["results"]
+    end
+    return results
 
 
-    # puts "@"*100
-
-    # puts "@"*100
   end
 
   def find_google_place(place_id)  #### pass in *place id* to get specific GOOGLE venue details including *hours*
-    searchURL = "https://maps.googleapis.com/maps/api/place/details/json?key=#{ENV["GOOGLE_PLACES_KEY"]}&placeid=#{place_id}"
+    results ||= Rails.cache.fetch("find google places" + place_id) do
+      puts "finding google place id " + place_id
+      searchURL = "https://maps.googleapis.com/maps/api/place/details/json?key=#{ENV["GOOGLE_PLACES_KEY"]}&placeid=#{place_id}"
+      reply = RestClient.get(searchURL)
+      JSON.parse(reply)["result"]
+    end
+    return results
 
-    reply = RestClient.get(searchURL)
-    JSON.parse(reply)["result"]
-
-    # puts "@"*100
-    # puts searchURL
-    # puts "@"*100
   end
 
 
@@ -89,16 +76,17 @@ class VenuesController < ApplicationController
           categories: categories,
           rating: business.rating,
           url: business.url,
-          hours: populated_place["opening_hours"]
+          hours: populated_place["opening_hours"],
+          weekday_text: populated_place["opening_hours"]["weekday_text"],
+          opening: populated_place["opening_hours"]["periods"][0]["open"]["time"],
+          closing: populated_place["opening_hours"]["periods"][0]["close"]["time"]
         }
       end
 
-
-
-
     end
-    puts yelp_venues.length
-    puts matches.length
+    # puts yelp_venues.length
+    # puts matches.length
+    # puts matches
     render json: matches
   end
 

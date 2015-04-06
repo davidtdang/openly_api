@@ -1,3 +1,3 @@
 class Venue < ActiveRecord::Base
-  has_many :tips
+  has_many :user_tips
 end

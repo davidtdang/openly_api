@@ -9,9 +9,13 @@ Rails.application.routes.draw do
   #
   # resources :venues
 
-  root 'venues#index'
-post '/search_yelp' => 'venues#search_yelp', as: :search_yelp
-post '/find_venues' => 'venues#find_venues', as: :find_venues
+
+    root 'venues#index'
+    post '/find_venues' => 'venues#find_venues', as: :find_venues
+    post '/user_tips' =>'user_tips#create'
+
+    # post '/find_venues' => 'venues#find_venues', as: :find_venues
+
   # root 'venues#index'
   # post '/search_yelp' => 'venues#search_yelp', as: :search_yelp
   # get '/search_json' => 'venues#search', as: :search_json
@@ -20,7 +24,9 @@ post '/find_venues' => 'venues#find_venues', as: :find_venues
   # get 'venues/show' => 'venues#show', as: :venues
 
 
-
+# find today
+# find close time
+# subtract
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
