@@ -13,7 +13,7 @@ Rails.application.routes.draw do
     root 'venues#index'
     post '/find_venues' => 'venues#find_venues', as: :find_venues
     post '/user_tips' =>'user_tips#create'
-
+    get '/user_tips/:id' =>'user_tips#show'
     # post '/find_venues' => 'venues#find_venues', as: :find_venues
 
   # root 'venues#index'
