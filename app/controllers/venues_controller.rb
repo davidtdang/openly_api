@@ -4,11 +4,9 @@ class VenuesController < ApplicationController
 
 
   def search_yelp(term)  #### gets YELP VENUES
-
     response ||= Rails.cache.fetch("find yelp venue " + term) do
       Yelp.client.search('San Francisco', {term: params[:s]}).businesses
     end
-
     return response
   end
 
@@ -57,7 +55,10 @@ class VenuesController < ApplicationController
 
 
 
-    created = Time.now.strftime("%H%M").to_i
+    created_at_time = Time.now.strftime("%H").to_i
+    # puts "@"*100
+    # puts created_at_time
+    # puts created_at_time.class
 
     matches = []
     yelp_venues.each do |business|
@@ -65,6 +66,15 @@ class VenuesController < ApplicationController
       if matched_google_id
         populated_place = find_google_place(matched_google_id)
 
+        next if !populated_place.has_key?("opening_hours")
+
+        next if !populated_place["opening_hours"]["open_now"]
+
+        next if populated_place["opening_hours"]["periods"].length > 7
+
+        timeToClose = prep_for_time_diff(populated_place["opening_hours"], day_index)
+
+        next if timeToClose[:hours] < 0
 
 
         db_venue = Venue.find_by(yelp_id:business.id)
@@ -77,6 +87,16 @@ class VenuesController < ApplicationController
         categories = business.categories.map do |category_arr|
           category_arr.first
         end
+
+        # if created_at_time > matches.closing.to_i || created_at_time < matches.opening.to_i
+        #   closed_checker ="Closed"
+        # else
+        #   closed_checker = prep_for_time_diff((populated_place["opening_hours"]["periods"][day_index]["close"]["time"]))
+        # end
+        puts "@"*100
+        puts business.name
+        puts populated_place["opening_hours"]["periods"]
+        puts "@"*100
 
         matches << {
           persisted: !user_tips.nil?,
@@ -91,22 +111,18 @@ class VenuesController < ApplicationController
           categories: categories,
           rating: business.rating,
           url: business.url,
-          # hours: populated_place["opening_hours"],
+          hours: populated_place["opening_hours"],
           weekday_text: populated_place["opening_hours"]["weekday_text"],
           opening: (populated_place["opening_hours"]["periods"][day_index]["open"]["time"]),
           closing: (populated_place["opening_hours"]["periods"][day_index]["close"]["time"]),
-          # hours_left:
-
+          hours_left: "#{timeToClose[:hours]}:#{timeToClose[:minutes]}"
+          # hours_left: prep_for_time_diff((populated_place["opening_hours"]["periods"][day_index]["close"]))
 
         }
       end
 
     end
-    # puts yelp_venues.length
-    # puts matches.length
-    # puts matches
-    # puts created
-    # puts matches
+
     render json: matches
   end
 
@@ -123,5 +139,37 @@ class VenuesController < ApplicationController
       "not available"
     end
   end
+
+  def prep_for_time_diff(hours, day)
+    close_time = hours["periods"][day]["close"]["time"]
+
+    close_min = close_time.slice!(2,2).to_i
+    close_hour = close_time.to_i
+
+    close_day = hours["periods"][day]["close"]["day"]
+    if close_day < day
+      close_day += 7
+    end
+    if close_day - day > 0
+      close_hour += (close_day - day) * 24
+    end
+
+    now = Time.now
+
+    calculated_close_hour = close_hour - Time.now.strftime("%H").to_i
+
+    calculated_close_minute = close_min - Time.now.strftime("%M").to_i
+
+    if calculated_close_minute < 0
+      calculated_close_hour--
+      calculated_close_minute = 60 + calculated_close_minute
+    end
+
+    return {
+      hours: calculated_close_hour,
+      minutes: calculated_close_minute
+    }
+  end
+
 
 end
