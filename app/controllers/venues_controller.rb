@@ -94,8 +94,7 @@ class VenuesController < ApplicationController
         #   closed_checker = prep_for_time_diff((populated_place["opening_hours"]["periods"][day_index]["close"]["time"]))
         # end
         puts "@"*100
-        puts business.name
-        puts populated_place["opening_hours"]["periods"]
+        puts user_tips
         puts "@"*100
 
         matches << {
